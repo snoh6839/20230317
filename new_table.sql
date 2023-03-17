@@ -54,3 +54,7 @@
 
 -- COMMIT;
 
+-- CREATE INDEX emp_no ON salaries (emp_no);
+-- CREATE INDEX emp_no ON titles (emp_no);
+
+
