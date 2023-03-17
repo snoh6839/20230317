@@ -60,7 +60,7 @@ ORDER BY e.emp_no;
 
 -- 5. 현재 salary from salaries 의 상위 10위까지 employee의  last_name, first_name from employees와
 -- 월급을 출력해 주세요.
-SELECT concat(employees.last_name, ' ' ,employees.first_name) AS Full_name, salaries.salary
+SELECT concat(employees.last_name, ' ' ,employees.first_name) AS Full_name, salaries.salary, salaries.salary_rank
 FROM employees
 	INNER JOIN (
 	  SELECT emp_no, salary, RANK() OVER (ORDER BY salary DESC) as salary_rank
@@ -68,7 +68,8 @@ FROM employees
 	  WHERE to_date = '9999-01-01'
 	) salaries
 		ON employees.emp_no = salaries.emp_no
-WHERE salaries.salary_rank <= 10;
+WHERE salaries.salary_rank <= 10
+ORDER BY salaries.salary_rank DESC;
 
 -- 직원의 이름과 해당 직원의 현재 연봉을 선택하여
 -- INNER JOIN 으로 emp_no 열이 일치하는 두 테이블의 행을 결합합니다.
@@ -105,6 +106,21 @@ FROM employees e
 -- SELECT 문의 CONCAT 함수는 e.last_name과 e.first_name을 합쳐
 -- Full_name이라는 별칭을 가지는 새로운 컬럼을 생성합니다.
 
+SELECT concat(e.last_name, ' ' ,e.first_name) AS Full_name, e.hire_date, d.dept_name, dm.from_date
+FROM departments d
+	LEFT JOIN dept_manager dm
+		ON dm.dept_no = d.dept_no
+		AND dm.to_date = '9999-01-01'
+	LEFT JOIN employees e
+		ON e.emp_no = dm.emp_no;
+
+-- SELECT 문은 Full_name, hire_date, dept_name 및 from_date 열을 검색하고 있습니다.
+-- FROM 문은 departments 테이블에서 정보를 가져옵니다.
+-- LEFT JOIN 절은 dept_manager 테이블과 employees 테이블을 departments 테이블과 연결합니다.
+-- dept_manager 테이블과 employees 테이블은 emp_no 열로 연결되어 있습니다.
+-- AND 절은 dept_manager의 to_date 열 값이 '9999-01-01'인 경우에만 dept_manager와 employees 테이블을 연결합니다.
+-- WHERE 절은 조건을 추가하지 않았기 때문에 모든 레코드를 반환합니다.
+
 -- 7. 현재 title이 staff인 employee의 (from titles) 현재 평균 salary (from salaries)을
 -- emp_no와 함께 출력해 주세요
 SELECT s.emp_no, t.title, AVG(s.salary) AS avg_salary
@@ -121,12 +137,13 @@ GROUP BY s.emp_no;
 
 -- 현재 staff인 직원의  전체 평균
 SELECT t.title, AVG(s.salary) AS avg_salary
-FROM salaries s
-	INNER JOIN titles t
+FROM titles t
+	INNER JOIN salaries s
 		ON s.emp_no = t.emp_no
 WHERE t.title = 'Staff'
 	AND s.to_date = '9999-01-01'
-GROUP BY t.title;
+	AND t.to_date = '9999-01-01';
+-- GROUP BY t.title;
 
 -- salaries 테이블과 titles 테이블을 emp_no 컬럼을 기준으로 INNER JOIN하여
 -- 직원들의 연봉 정보와 직책 정보를 가져옵니다.
@@ -139,6 +156,7 @@ SELECT e.emp_no, concat(e.last_name, ' ' ,e.first_name) AS Full_name, e.hire_dat
 FROM employees e
 	INNER JOIN dept_manager dm
 		ON e.emp_no = dm.emp_no;
+-- WHERE dm.to_date != '9999-01-01';
 		
 -- employees와 dept_manager 테이블을 emp_no 컬럼을 기준으로 INNER JOIN 하여
 -- 각 직원의 사번(emp_no), 성(last_name), 이름(first_name), 입사일(hire_date),
@@ -173,6 +191,7 @@ FROM employees e
 	INNER JOIN titles t
 		ON e.emp_no = t.emp_no
 WHERE e.gender = 'F'
+	AND t.to_date = DATE('9999-01-01')
 GROUP BY t.title;
 
 -- employees 테이블과 titles 테이블을 emp_no 컬럼을 기준으로 INNER JOIN하여
